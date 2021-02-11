@@ -1,0 +1,47 @@
+---
+
+- name: Download PHP
+  win_get_url:
+    url: "https://windows.php.net/downloads/releases/archives/php-7.4.11-nts-Win32-vc15-x64.zip"
+    dest: C:\windows\temp\
+
+- name: Unzip PHP
+  win_unzip:
+    src: C:\windows\temp\php-7.4.11-nts-Win32-vc15-x64.zip
+    dest: C:\php\
+    creates: C:\php\
+
+- name: Install the Visual C bits
+  ansible.windows.win_package:
+    path: https://aka.ms/vs/16/release/vc_redist.x64.exe
+    arguments: /install /passive /norestart
+
+- name: Setup PHP handling in IIS
+  # CHECK IF CONFIG EXISTS
+  win_shell: get-webconfiguration /system.webServer/handlers iis:\
+  register: php_handler_exists
+
+#- name: Add PHP IIS hanlder
+#  win_shell: add-webconfiguration /system.webServer/handlers iis:\ -value @{name="PHP7_4_11_via_FastCGI";path="*.php";verb="GET,HEAD,POST" ;modules="FastCgiModule";scriptProcessor="C:\PHP\php-cgi.exe";resourceType="Either"}
+  #PER SITE
+  #  win_shell: add-webconfiguration /system.webServer/handlers iis:\ -location 'acme' -value @{name="PHP7_4_11_via_FastCGI";path="*.php";verb="GET,HEAD,POST" ;modules="FastCgiModule";scriptProcessor="C:\PHP\php-cgi.exe";resourceType="Either"}
+
+- name: Setup PHP FastCGI Applicaiton in IIS
+  win_shell: | 
+    $php = 'C:\php\php-cgi.exe' 
+    $configPath = get-webconfiguration 'system.webServer/fastcgi/application' | where-object { $_.fullPath -eq $php }
+    if (!$configPath) { add-webconfiguration 'system.webserver/fastcgi' -value @{'fullPath' = $php }}
+
+- name: Copy php.ini file
+  win_copy:
+    src: php.ini
+    dest: c:\php\php.ini
+
+- name: Copy Wincache DLL
+  win_copy:
+    src: php_wincache.dll
+    dest: c:\php\ext\php_wincache.dll
+
+### INSTALL HELICONAPE ###
+- name: Install HeliconeApe
+  include: helicon.yaml

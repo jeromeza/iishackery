@@ -1,0 +1,60 @@
+---
+
+- name: Create app pool
+  debug:
+    msg: "Creating App pool for {{ item.key }}"
+
+- name: Create a new application pool in 'Started' state
+  win_iis_webapppool:
+    name: "{{ item.value.name }}"
+    state: started
+    attributes:
+      managedPipelineMode: Integrated
+
+- name: Create IIS site path - before setting path in IIS
+  win_file:
+    path: 'C:\sites\{{ item.value.name }}'
+    state: directory
+    recursive: yes
+
+- name: Create IIS log path - before setting path in IIS
+  win_file:
+    path: 'C:\logs\{{ item.value.name }}'
+    state: directory
+    recursive: yes
+
+- name: Create IIS site
+  win_iis_website:
+    name: "{{ item.value.name }}"
+    state: started
+    port: 80
+    ip: 127.0.0.1
+    hostname: "{{ item.value.name }}"
+    application_pool: "{{ item.value.name }}"
+    physical_path: 'C:\sites\{{ item.value.name }}'
+    parameters: 'logfile.directory:C:\logs\{{ item.value.name }}'
+  register: website
+
+- name: Add a HTTP binding on port 80
+  win_iis_webbinding:
+    name: "{{ item.value.name }}"
+    port: 80
+    host_header: "{{ item.value.name }}" 
+    ip: "{{ iter }}"
+    state: present 
+  with_items: "{{ item.value.bindings }}"
+  loop_control:
+    loop_var: iter
+
+- name: Create default.aspx file
+  win_copy:
+    content: '<%@ Page Trace="true"  Language="C#" ContentType="text/html" ResponseEncoding="utf-8" %>'
+    dest: 'c:\sites\{{ item.value.name }}\default.aspx'
+
+- name: Create info.php file
+  win_copy:
+    content: '<?php phpinfo(); ?>'
+    dest: 'c:\sites\{{ item.value.name }}\info.php'
+
+- name: Add host file entry for testing purposes
+  win_shell: Add-Content -Path C:\windows\System32\drivers\etc\hosts. -Value "127.0.0.1 {{ item.value.name }}"

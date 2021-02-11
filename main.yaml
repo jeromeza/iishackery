@@ -1,0 +1,40 @@
+---
+- hosts: windows
+  gather_facts: True
+  vars_files:
+    - vars/websites.yaml
+  tasks:
+    # INSTALL IIS #
+    - name: Install IIS Web-Server with sub features and management tools
+      ansible.windows.win_feature:
+        name: Web-Server
+        state: present
+        include_sub_features: yes
+        include_management_tools: yes
+      register: win_feature
+
+    - name: Reboot if installing Web-Server feature requires it
+      win_reboot:
+      when: win_feature.reboot_required
+
+    # REMOVE DEFAULT SITE AND BINDING #
+    - name: Remove Default Web Site
+      win_iis_website:
+        name: "Default Web Site"
+        state: absent
+    
+    # INSTALL PHP #
+    - name: Install PHP
+      include: php.yaml
+    
+    # CREATE WEBSITES #
+    - name: Create hosting
+      block:
+        - name: Creating hosting
+          include: hosting.yml
+          loop: "{{ lookup('dict', sites) }}"
+
+    # RESET IIS #
+    - name: IIS RESET
+      win_shell: iisreset
+

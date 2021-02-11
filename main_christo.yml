@@ -1,0 +1,28 @@
+---
+- hosts: localhost
+  connection: local 
+  vars:
+    sites:
+      website1:
+        name: website1
+        type: php
+        bindings:
+          - 10.0.0.1
+          - 10.0.0.2
+          - 10.0.0.3
+      website2:
+        name: website1
+        type: asp
+        bindings:
+          - 192.168.1.1
+          - 192.168.1.2
+          - 192.168.1.3
+
+  tasks:
+    - name: Create hosting
+      block:
+        - name: Creating hosting
+          include: hosting.yml
+          loop: "{{ lookup('dict', sites) }}"
+
+
