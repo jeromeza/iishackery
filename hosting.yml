@@ -1,23 +1,18 @@
 ---
-
-- name: Create app pool
-  debug:
-    msg: "Creating App pool for {{ item.key }}"
-
-- name: Create a new application pool in 'Started' state
+- name: Create a new application pool
   win_iis_webapppool:
     name: "{{ item.value.name }}"
     state: started
     attributes:
       managedPipelineMode: Integrated
 
-- name: Create IIS site path - before setting path in IIS
+- name: Create IIS site path
   win_file:
     path: 'C:\sites\{{ item.value.name }}'
     state: directory
     recursive: yes
 
-- name: Create IIS log path - before setting path in IIS
+- name: Create IIS log path
   win_file:
     path: 'C:\logs\{{ item.value.name }}'
     state: directory
