@@ -16,16 +16,15 @@
     path: https://aka.ms/vs/16/release/vc_redist.x64.exe
     arguments: /install /passive /norestart
 
-- name: Setup PHP handling in IIS
-  # CHECK IF CONFIG EXISTS
-  win_shell: get-webconfiguration /system.webServer/handlers iis:\
-  register: php_handler_exists
-
-#- name: Add PHP IIS hanlder
-#  win_shell: add-webconfiguration /system.webServer/handlers iis:\ -value @{name="PHP7_4_11_via_FastCGI";path="*.php";verb="GET,HEAD,POST" ;modules="FastCgiModule";scriptProcessor="C:\PHP\php-cgi.exe";resourceType="Either"}
-  #PER SITE
-  #  win_shell: add-webconfiguration /system.webServer/handlers iis:\ -location 'acme' -value @{name="PHP7_4_11_via_FastCGI";path="*.php";verb="GET,HEAD,POST" ;modules="FastCgiModule";scriptProcessor="C:\PHP\php-cgi.exe";resourceType="Either"}
-
+- name: Add PHP IIS hanlder
+  win_shell: |
+    $ErrorActionPreference= 'silentlycontinue'
+    add-webconfiguration /system.webServer/handlers iis:\ -value @{name="PHP7_4_11_via_FastCGI";path="*.php";verb="GET,HEAD,POST" ;modules="FastCgiModule";scriptProcessor="C:\PHP\php-cgi.exe";resourceType="Either"}
+  register: result
+  failed_when: "result.rc == 99"
+  ignore_errors: yes
+  # able to specify per site, with a iis:\ -location site_name 
+  
 - name: Setup PHP FastCGI Applicaiton in IIS
   win_shell: | 
     $php = 'C:\php\php-cgi.exe' 
