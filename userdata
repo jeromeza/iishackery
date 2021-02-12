@@ -1,0 +1,11 @@
+<powershell>
+$ipaddress=(Get-NetIPAddress -AddressFamily IPv4).ipaddress[0]
+Add-Content -Path C:\windows\System32\drivers\etc\hosts. -Value "$ipaddress acme.local"
+netsh advfirewall firewall add rule name= "Allow WinRM HTTP" dir=in action=allow protocol=TCP localport=5985
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+Invoke-WebRequest -URI https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1 -outfile ansible.ps1
+.\ansible.ps1
+winrm set winrm/config/Listener?Address=*+Transport=HTTP '@{Port="5985"}'
+Set-Item -Path WSMan:\localhost\Service\Auth\Basic -Value $true
+winrm set winrm/config/service '@{AllowUnencrypted="true"}'
+</powershell>
