@@ -1,0 +1,9 @@
+# Helicon Ape version 3.1.0.256
+
+RewriteEngine on
+
+RewriteCond %{HTTPS} (on)?
+RewriteCond %{HTTP:Host} ^(?!www\.)(.+)$ [NC]
+RewriteCond %{REQUEST_URI} (.+)
+RewriteRule .? http(?%1s)://www.%2%3 [R=301,L]
+

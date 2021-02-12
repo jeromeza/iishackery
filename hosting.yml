@@ -51,5 +51,15 @@
     content: '<?php phpinfo(); ?>'
     dest: 'c:\sites\{{ item.value.name }}\info.php'
 
+- name: Create webconfig file per site
+  win_copy:
+    src: files/web.config
+    dest: 'c:\sites\{{ item.value.name }}\web.config'
+
+- name: Create .htaccess file per site
+  win_copy:
+    src: files/.htaccess
+    dest: 'c:\sites\{{ item.value.name }}\.htaccess'
+
 - name: Add host file entry for testing purposes
   win_shell: Add-Content -Path C:\windows\System32\drivers\etc\hosts. -Value "127.0.0.1 {{ item.value.name }}"

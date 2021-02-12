@@ -1,8 +1,8 @@
 ---
 
 - name: Download HeliconApe
-  win_get_url:
-    url: "http://www.helicontech.com/download/ape/Helicon_Ape_0256.msi"
+  win_copy:
+    src: "files/Helicon_Ape_0256.msi"
     dest: C:\windows\temp\
 
 - name: Install HeliconApe

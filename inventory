@@ -1,9 +1,9 @@
 [windows]
-3.91.132.196
+52.87.158.241
 
 [windows:vars]
 ansible_user=Administrator
-ansible_password="8XjAbkiqwPOmd&4TO$;BN&Css%-vF.CL"
+ansible_password="pC=*wPymhLE6(4qWH27(cwFiuJ&9Mo%u"
 ansible_connection=winrm
 ansible_winrm_port=5985
 ansible_winrm_server_cert_validation=ignore

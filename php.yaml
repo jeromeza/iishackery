@@ -1,8 +1,8 @@
 ---
 
 - name: Download PHP
-  win_get_url:
-    url: "https://windows.php.net/downloads/releases/archives/php-7.4.11-nts-Win32-vc15-x64.zip"
+  win_copy:
+    src: "files/php-7.4.11-nts-Win32-vc15-x64.zip"
     dest: C:\windows\temp\
 
 - name: Unzip PHP
@@ -11,9 +11,14 @@
     dest: C:\php\
     creates: C:\php\
 
+- name: Copy Visual C bits
+  win_copy:
+    src: "files/vc_redist.x64.exe"
+    dest: C:\windows\temp\
+
 - name: Install the Visual C bits
   ansible.windows.win_package:
-    path: https://aka.ms/vs/16/release/vc_redist.x64.exe
+    path: c:\windows\temp\vc_redist.x64.exe
     arguments: /install /passive /norestart
 
 - name: Add PHP IIS hanlder

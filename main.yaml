@@ -26,6 +26,10 @@
     # INSTALL PHP #
     - name: Install PHP
       include: php.yaml
+
+    # INSTALL TOOLING #
+    - name: Install Tooling
+      include: tooling.yaml  
     
     # CREATE WEBSITES #
     - name: Create hosting

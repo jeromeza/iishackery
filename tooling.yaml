@@ -1,0 +1,10 @@
+---
+- name: Copy Firefox
+  win_copy: 
+    src: files/Firefox_Setup_85.0.2.msi
+    dest: C:\windows\temp\
+
+- name: Install Firefox
+  ansible.windows.win_package:
+    path: C:\windows\temp\Firefox_Setup_85.0.2.msi
+    state: present
